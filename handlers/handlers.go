@@ -28,11 +28,15 @@ func (h *Handler) PostUrl(rw http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		log.Println("Error decoding req:", err)
+		http.Error(rw, "Unexpected error", http.StatusInternalServerError)
+		return
 	}
 
 	res, err := h.storage.SaveURL(req.URL, req.Alias)
 	if err != nil {
 		log.Println("Error saving url:", err)
+		http.Error(rw, "Error saving data", http.StatusInternalServerError)
+		return
 	}
 
 	rw.Header().Set("Content-Type", "application/json")
@@ -46,6 +50,8 @@ func (h *Handler) GetUrl(rw http.ResponseWriter, r *http.Request) {
 	url, err := h.storage.SelectURL(alias)
 	if err != nil {
 		log.Println("Error getting URL:", err)
+		http.Error(rw, "Error getting data", http.StatusNotFound)
+		return
 	}
 
 	rw.Header().Set("Content-Type", "application/json")

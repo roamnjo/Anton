@@ -33,12 +33,12 @@ func ConnectDB() (*Storage, error) {
 	defer stmt.Close()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	_, err = stmt.Exec()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	return &Storage{db: db}, nil
@@ -50,7 +50,7 @@ func (s *Storage) SaveURL(url, alias string) (int64, error) {
 
 	err := s.db.QueryRow("INSERT INTO url (url, alias) VALUES($1, $2) RETURNING id", url, alias).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("Error inserting url:", err)
+		return 0, fmt.Errorf("SaveURL: save data failed %w", err)
 	}
 
 	return id, nil
@@ -64,7 +64,7 @@ func (s *Storage) SelectURL(alias string) (string, error) {
 		if err == sql.ErrNoRows {
 			return "", fmt.Errorf("alias not found")
 		}
-		return "", fmt.Errorf("Error selecting:", err)
+		return "", fmt.Errorf("SelectURL: get data failed %w", err)
 	}
 
 	return resUrl, nil
