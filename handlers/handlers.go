@@ -32,6 +32,15 @@ func (h *Handler) PostUrl(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Alias == "" {
+		req.Alias, err = GenerateRandomAlias(8)
+		if err != nil {
+			log.Println("Error generating random alias:", err)
+			http.Error(rw, "Unable generate random alias", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	res, err := h.storage.SaveURL(req.URL, req.Alias)
 	if err != nil {
 		log.Println("Error saving url:", err)
